@@ -73,10 +73,25 @@ passport.deserializeUser((id, done) => {
 });
 
 // Routes for authentication
-app.post('/login', passport.authenticate('local'), (req, res) => {
-  console.log(req.user); 
-  res.json({ message: 'Login successful', user: req.user });
-});
+// app.post('/login', passport.authenticate('local'), (req, res) => {
+//   console.log(req.user); 
+//   res.json({ message: 'Login successful', user: req.user });
+// });
+
+app.post('/login',(req,res)=>{
+  const {username,password} = req.body;
+  User.findOne({username:username})
+  .then(user=>{
+    if(user){
+      if(user.password===password){
+        res.json('Sucess')
+      }else{
+        res.json('the passwor is incorrect')
+      }
+    }
+    
+  })
+})
 
 
 app.get('/logout', (req, res) => {
@@ -109,36 +124,60 @@ app.post('/register', async (req, res) => {
   }
 });
 // Route to create a new blog
+// app.post('/create-blog', async (req, res) => {
+//   const { title, content } = req.body;
+//   try {
+//     const newBlog = new Blog({
+//       title,
+//       content,
+//       author: req.user._id, 
+//     });
+//     await newBlog.save();
+//   res.json({ message: 'Blog created successfully', blog: newBlog });
+//   } catch (error) {
+//     console.error('Blog creation failed:', error);
+//     res.status(500).json({ message: 'Blog creation failed' });
+//   }
+// });
+
 app.post('/create-blog', async (req, res) => {
-  const { title, content } = req.body;
   try {
-    const newBlog = new Blog({
-      title,
-      content,
-      author: req.user._id, 
-    });
-    await newBlog.save();
-    res.json({ message: 'Blog created successfully', blog: newBlog });
+    const { title,content} = req.body;
+    const blogPost = new Blog({ title,content });
+    await blogPost.save();
+    res.json({ message: 'Blog created successfully', blogPost});
   } catch (error) {
-    console.error('Blog creation failed:', error);
-    res.status(500).json({ message: 'Blog creation failed' });
+    res.status(500).json({ error: 'Error creating blog post' });
   }
 });
 // Route to retrieve blogs with pagination
-app.get('/blogs', async (req, res) => {
-  const page = req.query.page || 1;
-  const perPage = 10; 
+// app.get('/blogs', async (req, res) => {
+//   const page = req.query.page || 1;
+//   const perPage = 10; 
 
+//   try {
+//     const blogs = await Blog.find()
+//       .skip((page - 1) * perPerPage)
+//       .limit(perPage)
+//       .exec();
+
+//     res.json(blogs);
+//   } catch (error) {
+//     console.error('Error fetching blogs:', error);
+//     res.status(500).json({ message: 'Error fetching blogs' });
+//   }
+// });
+
+app.get('/blogs/:id', async (req, res) => {
   try {
-    const blogs = await Blog.find()
-      .skip((page - 1) * perPerPage)
-      .limit(perPage)
-      .exec();
-
-    res.json(blogs);
+    const blog = await blogPost.findById(req.params.id);
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog not found' });
+    }
+    res.json(blog);
   } catch (error) {
-    console.error('Error fetching blogs:', error);
-    res.status(500).json({ message: 'Error fetching blogs' });
+    console.error('Error fetching blog:', error);
+    res.status(500).json({ message: 'Error fetching blog' });
   }
 });
 

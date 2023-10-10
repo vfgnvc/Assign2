@@ -1,23 +1,41 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const axiosInstance = axios.create({
-    baseURL: 'http://localhost:3001', 
-  });
+  const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    try {
-      const response = await axiosInstance.post('/login', { username, password });
-      console.log(response.data.message);
-    } catch (error) {
-      console.error('Login failed:', error);
-    }
-  };
+  // const axiosInstance = axios.create({
+  //   baseURL: 'http://localhost:3001', 
+  // });
+
+  // const handleLogin = async () => {
+  //   try {
+  //     const response = await axiosInstance.post('/login', { username, password });
+  //     console.log(response.data.message);
+  //   } catch (error) {
+  //     console.error('Login failed:', error);
+  //   }
+  // };
+
+   const handleLogin = (e)=>{
+    e.preventDefault()
+    axios.post('http://localhost:3001/login',{username,password})
+    .then(result=>{
+      console.log(result);
+      if(result.data==='Sucess'){
+        navigate('/')
+        
+      }
+    })
+    .catch(err=>console.log(err))
+   }
+
+
+
   return (
     <Container>
     <Row className="justify-content-center mt-5">

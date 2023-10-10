@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Form } from 'react-bootstrap';
 
 function BlogList() {
@@ -7,25 +8,35 @@ function BlogList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [newBlogTitle, setNewBlogTitle] = useState('');
   const [newBlogContent, setNewBlogContent] = useState('');
-
-  const axiosInstance = axios.create({
-    baseURL: 'http://localhost:3001', 
-  });
-
+  const { id } = useParams();
+  
   useEffect(() => {
-    const fetchBlogs = async () => {
+    const fetchBlogDetails = async () => {
       try {
-        const response = await axiosInstance.get(`/blogs?page=${currentPage}`);
+        const response = await axios.get(`http://localhost:3001/blogs/${id}`);
         setBlogs(response.data);
       } catch (error) {
-        console.error('Error fetching blogs:', error);
+        console.error('Error fetching blog details:', error);
       }
     };
+
+    fetchBlogDetails();
+  }, [id]);
+
+  // useEffect(() => {
+  //   const fetchBlogs = async () => {
+  //     try {
+  //       const response = await axios.get(`http://localhost:3001/blogs?page=${currentPage}`);
+  //       setBlogs(response.data);
+  //     } catch (error) {
+  //       console.error('Error fetching blogs:', error);
+  //     }
+  //   };
   
    
-    fetchBlogs(); 
+  //   fetchBlogs(); 
   
-  }, [currentPage]);
+  // }, [currentPage]);
   
 
 
@@ -34,11 +45,13 @@ function BlogList() {
     setCurrentPage(currentPage + 1);
   };
 
-  const handleCreateBlog = async () => {
+  const handleCreateBlog = async (e) => {
+    e.preventDefault()
     try {
-      const response = await axios.post('/create-blog', {
+      const response = await axios.post('http://localhost:3001/create-blog', {
         title: newBlogTitle,
         content: newBlogContent,
+        
       });
       console.log(response.data.message);
       
